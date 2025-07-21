@@ -14,43 +14,35 @@ class Field {
   constructor(field = [[]]) {
     this.field = field;
 
-    // Replace with your own code //
     // Set the home position at (0, 0) before the game starts
     this.positionRow = 0;
     this.positionCol = 0;
     this.gameOver = false;
-    // this.field[this.positionRow][this.positionCol] = pathCharacter;
   }
 
-  //สร้างสนามในการเล่นแบบสุ่ม
+  //  Create the game field
   static createField(holes, rows, cols) {
     const field = [];
     const len = rows * cols;
     const dimension = new Array(len).fill(fieldCharacter);
 
-    //สุ่ม วางหลุม
+    // Randomly spawn holes
     for (let i = 0; i < holes; i++) {
-      let holeIndex;
-      do {
-        holeIndex = Math.floor(Math.random() * len);
-      } while (dimension[holeIndex] === hole);
+      const holeIndex = Math.floor(Math.random() * len);
       dimension[holeIndex] = hole;
     }
 
-    //สุ่ม วางหมวก
-    let hatIndex;
-    do {
-      hatIndex = Math.floor(Math.random() * len);
-    } while (dimension[hatIndex] === hole);
+    // Randomly spawn hat
+    const hatIndex = Math.floor(Math.random() * len);
     dimension[hatIndex] = hat;
 
-    // จัดเรียงเป็น 2D array
+    // Convert 1d array to  2d array
     for (let i = 0; i < rows; i++) {
-      const row = [];
+      const rowData = [];
       for (let j = 0; j < cols; j++) {
-        row.push(dimension.pop());
+        rowData.push(dimension.pop());
       }
-      field.push(row);
+      field.push(rowData);
     }
     return field;
   }
@@ -58,27 +50,17 @@ class Field {
   // Print field //
   print() {
     clear();
-    for (let row of this.field) {
-      console.log(row.join(""));
+    for (let rows of this.field) {
+      console.log(rows);
     }
   }
 
-  //อัพเดทเส้นทาง Path
-  updatePath() {
-    this.field[this.positionRow][this.positionCol] = fieldCharacter;
-  }
   // Replace with your own code //
   //console.log(this.field); // Please REMOVE this line before you start your code!
 
   // Your Code //
-  createActor() {
-    const row = Math.floor(Math.random() * this.field.length);
-    const column = Math.floor(Math.random() * this.field[0].length);
-    this.positionRow = row;
-    this.positionCol = column;
-    this.field[this.positionRow][this.positionCol] = pathCharacter;
-  }
 
+  // Move direction button
   move(direction) {
     switch (direction.toLowerCase()) {
       case "a":
@@ -116,7 +98,7 @@ class Field {
   }
 
   checkGameState() {
-    //เช็คสถานะการเดินตกขอบ
+    // Outside the field check
     const maxRow = this.field.length;
     const maxCol = this.field[0].length;
 
@@ -127,21 +109,35 @@ class Field {
       this.positionCol >= maxCol
     ) {
       this.gameOver = true;
-      console.log("You out of the way !");
+      console.log(`Attempts to move "outside" the field.`);
       return;
     }
 
-    // เช็คว่าเดินไปเจอหลุม
+    // Found the hole check
     const CurrentBlock = this.field[this.positionRow][this.positionCol];
     if (CurrentBlock === hole) {
       this.gameOver = true;
-      console.log("You fell into the hole");
+      console.log("Loses by landing on (and falling in) a hole.");
     }
-
+    // Found the hat check
     if (CurrentBlock === hat) {
       this.gameOver = true;
-      console.log("Congrats, You found the hat");
+      console.log("Wins by finding their hat.");
     }
+  }
+
+  updatePath() {
+    if (!this.gameOver) {
+      this.field[this.positionRow][this.positionCol] = pathCharacter;
+    }
+  }
+
+  createActor() {
+    const row = Math.floor(Math.random() * this.field.length);
+    const column = Math.floor(Math.random() * this.field[0].length);
+    this.positionRow = row;
+    this.positionCol = column;
+    this.field[this.positionRow][this.positionCol] = pathCharacter;
   }
 
   //Start Game
@@ -149,18 +145,19 @@ class Field {
     this.createActor();
     while (!this.gameOver) {
       this.print();
-      const way = prompt("Which way? (w/a/s/d): ");
-      this.move(way);
+      const way = prompt("Which way ? : ");
+      this.move(way); // move("u")
       this.checkGameState();
       this.updatePath();
     }
-//   }
-
+  }
 }
 
-const newGame = new Field(Field.createField(2, 3, 3));
+// Create new game field
+const newGame = new Field(Field.createField(2, 3, 3)); // holes, rows, cols
 
 newGame.runner();
+
 //
 // Game Mode ON
 // Remark: Code example below should be deleted and use your own code.
